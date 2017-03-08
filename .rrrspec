@@ -1,0 +1,63 @@
+RRRSpec.configure do |config|
+  config.redis = {
+    host: ENV['RRRSPEC_REDIS_HOST'],
+    port: 6379
+  }
+end
+
+RRRSpec.configure(:client) do |config|
+  Time.zone_default = Time.find_zone('Asia/Tokyo')
+
+  config.packaging_dir = `git rev-parse --show-toplevel`.strip
+  config.rsync_remote_path = "#{ENV['RRRSPEC_MASTER_HOST']}:/rrrspec/rsync"
+  config.rsync_options = %w(
+    --compress
+    --times
+    --recursive
+    --links
+    --perms
+    --inplace
+    --delete
+    --cvs-exclude
+    --exclude=vendor/bundle
+    --exclude=.bundle/config
+  ).join(' ')
+
+  config.spec_files = lambda do
+    Dir.chdir(config.packaging_dir) do
+      Dir['spec/**{,/*/**}/*_spec.rb'].uniq
+    end
+  end
+
+  config.setup_command = <<-SETUP
+    bundle check --path=../bundler/pixta || bundle install --path=../bundler/pixta --jobs=4 --retry=3
+    cp -f config/database.rrrspec.yml config/database.yml
+
+    # DynamoDB Local
+    [ -d tmp ] || mkdir tmp
+    lsof -ti :8000 && kill -9 $(lsof -ti :8000)
+    nohup bundle exec dynamodb-local -port 8000 -dbPath tmp 0<&- &>/dev/null &
+
+    # Install npm packages
+    pushd frontend
+    export NODE_ENV=development
+    yarn install
+    yarn run build
+    popd
+  SETUP
+
+  config.slave_command = <<-SLAVE
+    export RAILS_ENV=test
+    export TEST_ENV_NUMBER=$SLAVE_NUMBER
+
+    bundle exec rake db:migrate:reset --trace
+    bundle exec rrrspec-client slave
+  SLAVE
+
+  config.taskset_class = %x(basename `pwd`).strip
+  config.worker_type = 'default'
+  config.max_workers = 12
+  config.max_trials = 3
+  config.unknown_spec_timeout_sec = 15 * 60
+  config.least_timeout_sec = 60
+end
