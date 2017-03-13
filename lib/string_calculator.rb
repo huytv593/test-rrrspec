@@ -12,3 +12,4 @@ class StringCalculator
 		0
 	end
 end
+
