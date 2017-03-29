@@ -10,6 +10,7 @@ class StringCalculator
 
 	def self.subtract(input)
 		0
+		
 	end
 end
 
