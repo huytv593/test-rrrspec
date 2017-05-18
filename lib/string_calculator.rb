@@ -7,5 +7,8 @@ class StringCalculator
 			numbers.inject(0) { |sum, number| sum + number }	
 		end
 	end
-end
 
+	def self.subtract(input)
+		0
+	end
+end
