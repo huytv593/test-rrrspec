@@ -11,5 +11,4 @@ class StringCalculator
 	def self.subtract(input)
 		1
 	end
-	
 end
