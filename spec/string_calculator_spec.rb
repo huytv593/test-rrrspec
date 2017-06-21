@@ -26,7 +26,7 @@ describe StringCalculator do
 			end
 		end
 	end
-	
+
 	describe ".subtract" do
 		context "given an empty string" do
 			it "return zero" do
