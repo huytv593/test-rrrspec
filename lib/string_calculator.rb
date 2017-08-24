@@ -12,3 +12,5 @@ class StringCalculator
 		1
 	end
 end
+
+
