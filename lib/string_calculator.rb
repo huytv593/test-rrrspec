@@ -8,6 +8,8 @@ class StringCalculator
 		end
 	end
 
+	
+	
 	def self.subtract(input)
 		1
 	end
