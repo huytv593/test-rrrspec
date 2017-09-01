@@ -26,4 +26,17 @@ describe StringCalculator do
 			end
 		end
 	end
+
+	describe ".subtract" do
+		context "given an empty string" do
+			it "return zero" do
+				expect(StringCalculator.subtract("")).to eql(0)
+			end
+		end
+		context "given '4'" do
+			it "return 4" do
+				expect(StringCalculator.subtract("4")).to eql(4)
+			end
+		end
+	end
 end
